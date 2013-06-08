@@ -1,5 +1,5 @@
 {
-    "name": "minond/model",
+    "name": "minond/http",
     "description": "Http/routing helpers",
     "authors": [
         {

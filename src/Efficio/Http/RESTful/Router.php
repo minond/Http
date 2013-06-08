@@ -284,10 +284,9 @@ class Router
      */
     private function handlerFindBy()
     {
-        $filter = $this->data ?: [];
-
         return call_user_func(
-            $this->getCallable($this->smodel, self::FIND_BY), $filter);
+            $this->getCallable($this->smodel, self::FIND_BY),
+            $this->data ?: []);
     }
 
     /**
