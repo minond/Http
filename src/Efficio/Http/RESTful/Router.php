@@ -34,6 +34,9 @@ class Router
      */
     const FIND_ONE_BY_ID = 'findOneById';
     const FIND_BY = 'findBy';
+    const CREATE_ONE = 'create';
+    const SAVE_ONE = 'save';
+    const GET_ID = 'getId';
 
     /**
      * supported request methods
@@ -76,6 +79,24 @@ class Router
     private $args;
 
     /**
+     * plural model name
+     * @var string
+     */
+    private $model;
+
+    /**
+     * sigular model name
+     * @var string
+     */
+    private $smodel;
+
+    /**
+     * model id
+     * @var string
+     */
+    private $id;
+
+    /**
      * restful models
      * @string[]
      */
@@ -92,7 +113,8 @@ class Router
         ],
 
         self::PUT => [
-            true  => 'handlerUpdateOrCreate',
+            true  => 'handlerUpdate',
+            false => 'handlerCreate',
         ],
 
         self::POST => [
@@ -112,6 +134,9 @@ class Router
     private $modeldefaults = [
         self::FIND_ONE_BY_ID => 'findOneById',
         self::FIND_BY => 'findBy',
+        self::CREATE_ONE => 'create',
+        self::SAVE_ONE => 'save',
+        self::SAVE_ONE => 'getId',
     ];
 
     /**
@@ -168,13 +193,12 @@ class Router
     {
         $valid = true;
         $hasid = strlen($this->id) !== 0;
-        $model = $this->getModelSingularName($this->model);
 
-        if (!isset($this->models[ $model ])) {
+        if (!isset($this->models[ $this->smodel ])) {
             $valid = false;
             if ($throws)
                 throw new \Exception(sprintf(
-                    'Invalid model: %s', $model));
+                    'Invalid model: %s', $this->smodel));
         } else if (!isset(self::$internals[ $this->method ][ $hasid ])) {
             $valid = false;
             if ($throws)
@@ -212,6 +236,7 @@ class Router
 
         $this->id = $id;
         $this->model = $model;
+        $this->smodel = $this->getModelSingularName($model);
         $this->url = $url;
         $this->baseurl = $baseurl;
     }
@@ -258,19 +283,15 @@ class Router
      */
     private function handlerFindBy()
     {
-        $model = $this->getModelSingularName($this->model);
         $filter = [];
 
-        if (isset($this->models, $model)) {
-            if ($this->data) {
-                $filter = is_string($this->data) ?
-                    json_decode($this->data, true) : $this->data;
-            }
-            return call_user_func(
-                $this->getCallable($model, self::FIND_BY), $filter);
-        } else {
-            throw new \Exception(sprintf('Invalid model %s', $model));
+        if ($this->data) {
+            $filter = is_string($this->data) ?
+                json_decode($this->data, true) : $this->data;
         }
+
+        return call_user_func(
+            $this->getCallable($this->smodel, self::FIND_BY), $filter);
     }
 
     /**
@@ -281,35 +302,48 @@ class Router
      */
     private function handlerFindOneById()
     {
-        $model = $this->getModelSingularName($this->model);
+        return call_user_func(
+            $this->getCallable($this->smodel, self::FIND_ONE_BY_ID), $this->id);
+    }
 
-        if (isset($this->models, $model)) {
-            return call_user_func(
-                $this->getCallable($model, self::FIND_ONE_BY_ID), $this->id);
-        } else {
-            throw new \Exception(sprintf('Invalid model %s', $model));
+    /**
+     * create a new model. returns the model's id.
+     * @throws Exception
+     * @return string
+     */
+    private function handlerCreate()
+    {
+        $data = is_string($this->data) ?
+            json_decode($this->data, true) : $this->data;
+
+        $model = call_user_func(
+            $this->getCallable($this->smodel, self::CREATE_ONE), $data);
+
+        if (call_user_func($this->getCallable($model, self::SAVE_ONE))) {
+            return call_user_func($this->getCallable($model, self::GET_ID));
         }
     }
 
     /**
-     * if a model is passed with its id, update it. otherwise, create it.
-     * returns the model's id.
+     * update an existing model. returns the model
      * @throws Exception
      * @return string
      */
-    private function handlerUpdateOrCreate()
+    private function handlerUpdate()
     {
-        // $model = $this->getModelSingularName($this->model);
+        $data = is_string($this->data) ?
+            json_decode($this->data, true) : $this->data;
 
-        // if (isset($this->models, $model)) {
-        //     var_dump($this->getCallable($model, self::FIND_ONE_BY_ID));
-        //     $data = is_string($this->data) ?
-        //         json_decode($this->data, true) : $this->data;
-        //     return call_user_func(
-        //         $this->getCallable($model, self::UPDATE), $this->id);
-        // } else {
-        //     throw new \Exception(sprintf('Invalid model %s', $model));
-        // }
+        $model = call_user_func(
+            $this->getCallable($this->smodel, self::FIND_ONE_BY_ID), $this->id);
+
+        foreach ($data as $field => $value) {
+            $model->{ $field } = $value;
+        }
+
+        if (call_user_func($this->getCallable($model, self::SAVE_ONE))) {
+            return $model;
+        }
     }
 
     /**
@@ -326,15 +360,17 @@ class Router
      */
     private function getCallable($model, $func)
     {
-        $info = $this->models[ $model ];
+        if (is_string($model)) {
+            $info = $this->models[ $model ];
 
-        if (is_array($info)) {
-            $funcs = array_merge($this->modeldefaults, $info[1]);
-            $model = $info[0];
-            $func = $funcs[ $func ];
-        } else {
-            $model = $info;
-            $func = $this->modeldefaults[ $func ];
+            if (is_array($info)) {
+                $funcs = array_merge($this->modeldefaults, $info[1]);
+                $model = $info[0];
+                $func = $funcs[ $func ];
+            } else {
+                $model = $info;
+                $func = $this->modeldefaults[ $func ];
+            }
         }
 
         return [ $model, $func ];
