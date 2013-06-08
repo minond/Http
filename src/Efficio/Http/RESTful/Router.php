@@ -68,7 +68,7 @@ class Router
 
     /**
      * raw request data
-     * @var array|object|string
+     * @var array
      */
     private $data;
 
@@ -260,17 +260,18 @@ class Router
     }
 
     /**
-     * @param array|object|string $args
+     * @param array|string $data
      */
     public function data($data)
     {
-        $this->data = $data;
+        $this->data = is_string($data) ?
+                json_decode($data, true) : $data;
     }
 
     /**
      * @param array $args
      */
-    public function args($args)
+    public function args(array $args)
     {
         $this->args = $args;
     }
@@ -283,12 +284,7 @@ class Router
      */
     private function handlerFindBy()
     {
-        $filter = [];
-
-        if ($this->data) {
-            $filter = is_string($this->data) ?
-                json_decode($this->data, true) : $this->data;
-        }
+        $filter = $this->data ?: [];
 
         return call_user_func(
             $this->getCallable($this->smodel, self::FIND_BY), $filter);
@@ -313,11 +309,8 @@ class Router
      */
     private function handlerCreate()
     {
-        $data = is_string($this->data) ?
-            json_decode($this->data, true) : $this->data;
-
         $model = call_user_func(
-            $this->getCallable($this->smodel, self::CREATE_ONE), $data);
+            $this->getCallable($this->smodel, self::CREATE_ONE), $this->data);
 
         if (call_user_func($this->getCallable($model, self::SAVE_ONE))) {
             return call_user_func($this->getCallable($model, self::GET_ID));
@@ -331,13 +324,10 @@ class Router
      */
     private function handlerUpdate()
     {
-        $data = is_string($this->data) ?
-            json_decode($this->data, true) : $this->data;
-
         $model = call_user_func(
             $this->getCallable($this->smodel, self::FIND_ONE_BY_ID), $this->id);
 
-        foreach ($data as $field => $value) {
+        foreach ($this->data as $field => $value) {
             $model->{ $field } = $value;
         }
 
