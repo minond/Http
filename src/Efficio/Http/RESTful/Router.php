@@ -150,6 +150,7 @@ class Router
 
     /**
      * @param array $models
+     * @return array
      */
     public function serve(array $models)
     {
@@ -170,6 +171,8 @@ class Router
             $model = strtolower($model);
             $this->models[ $model ] = $klass;
         }
+
+        return $this->models;
     }
 
     /**

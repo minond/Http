@@ -14,5 +14,8 @@
         "psr-0": {
             "Efficio": "src/"
         }
+    },
+    "require-dev": {
+        "minond/model": "dev-master"
     }
 }
