@@ -1,6 +1,6 @@
 {
     "name": "minond/http",
-    "description": "Http/routing helpers",
+    "description": "Http helpers",
     "authors": [
         {
             "name": "Marcos Minond",
@@ -14,8 +14,5 @@
         "psr-0": {
             "Efficio": "src/"
         }
-    },
-    "require-dev": {
-        "minond/model": "dev-master"
     }
 }
