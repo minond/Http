@@ -49,4 +49,33 @@ abstract class Verb
      * is used to apply partial modifications to a resource.
      */
     const PATCH = 'PATCH';
+
+    /**
+     * validates a method string
+     * @param string $method
+     * @param boolean $ignorecase, default: false
+     * @return boolean
+     */
+    public static function valid($method, $ignorecase = false)
+    {
+        return in_array($ignorecase ? strtoupper($method) : $method,
+            self::options());
+    }
+
+    /**
+     * returns available verbs
+     * @return array
+     */
+    public static function options()
+    {
+        return [
+            self::GET,
+            self::HEAD,
+            self::POST,
+            self::PUT,
+            self::DEL,
+            self::OPTIONS,
+            self::PATCH,
+        ];
+    }
 }
