@@ -4,7 +4,10 @@ namespace Efficio\Tests\Http;
 
 use Efficio\Http\Verb;
 use Efficio\Http\Request;
+use Efficio\Test\Mocks\Http\RequestInputAccess;
 use PHPUnit_Framework_TestCase;
+
+require_once './tests/mocks/RequestInputAccess.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase
 {
@@ -115,5 +118,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($uri, $req->getUri());
         $this->assertEquals($port, $req->getPort());
         $this->assertEquals($method, $req->getMethod());
+    }
+
+    public function testReadingInputForFirstTimeReadsFromPHPsInput()
+    {
+        RequestInputAccess::setInputRead(false);
+        $this->assertFalse(RequestInputAccess::getInputRead());
+        $req = new RequestInputAccess;
+        $req->getInput();
+        $this->assertTrue(RequestInputAccess::getInputRead());
     }
 }

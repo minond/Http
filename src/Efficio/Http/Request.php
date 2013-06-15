@@ -10,41 +10,41 @@ class Request
      * request data
      * @var string
      */
-    private static $globalinput = '';
+    protected static $globalinput = '';
 
     /**
      * php://input read flag
      * @var boolean
      */
-    private static $inputread = false;
+    protected static $inputread = false;
 
     /**
      * request data
      * @var string
      */
-    private $input = '';
+    protected $input = '';
 
     /**
      * request arguments
      * @var array
      */
-    private $args = [];
+    protected $args = [];
 
     /**
      * @see Efficio\Http\Verb
      * @var string
      */
-    private $method;
+    protected $method;
 
     /**
      * @var string
      */
-    private $uri;
+    protected $uri;
 
     /**
      * @var string
      */
-    private $port;
+    protected $port;
 
     /**
      * argument getter shortcut
@@ -62,10 +62,10 @@ class Request
      */
     public function getInput()
     {
-        if (!self::$inputread && !strlen($this->input)) {
-            self::$globalinput = file_get_contents('php://input');
-            self::$inputread = true;
-            $this->input = self::$globalinput;
+        if (!static::$inputread && !strlen($this->input)) {
+            static::$globalinput = file_get_contents('php://input');
+            static::$inputread = true;
+            $this->input = static::$globalinput;
         }
 
         return $this->input;
