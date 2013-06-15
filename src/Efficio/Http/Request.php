@@ -36,6 +36,11 @@ class Request
     private $uri;
 
     /**
+     * @var string
+     */
+    private $port;
+
+    /**
      * argument getter shortcut
      * @param string $key
      * @return mixed
@@ -117,7 +122,7 @@ class Request
 
         if (!Verb::valid($method)) {
             throw new InvalidArgumentException(
-                sprintf('Invalid method type: %s, expects: [%s]', $method,
+                sprintf('Invalid method type: %s, expects: [%s]', $method),
                 implode(', ', Verb::options())
             );
         }
@@ -153,12 +158,36 @@ class Request
     }
 
     /**
+     * port setter
+     * @param string $port
+     */
+    public function setPort($port)
+    {
+        $this->port = $port;
+    }
+
+    /**
+     * port getter
+     * @return string
+     */
+    public function getPort()
+    {
+        return $this->port;
+    }
+
+    /**
      * reads super-globals to create it self
      * @return Request
      */
     public static function create()
     {
         $req = new Request;
+
+        $req->setArguments($_REQUEST);
+        $req->setUri($_SERVER['SCRIPT_NAME']);
+        $req->setPort($_SERVER['SERVER_PORT']);
+        $req->setMethod($_SERVER['REQUEST_METHOD']);
+
         return $req;
     }
 }
