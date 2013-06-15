@@ -10,13 +10,19 @@ class Request
      * request data
      * @var string
      */
-    private $input = '';
+    private static $globalinput = '';
 
     /**
      * php://input read flag
      * @var boolean
      */
-    private $inputread = false;
+    private static $inputread = false;
+
+    /**
+     * request data
+     * @var string
+     */
+    private $input = '';
 
     /**
      * request arguments
@@ -56,9 +62,10 @@ class Request
      */
     public function getInput()
     {
-        if (!$this->inputread && !strlen($this->input)) {
-            $this->input = file_get_contents('php://input');
-            $this->inputread = true;
+        if (!self::$inputread && !strlen($this->input)) {
+            self::$globalinput = file_get_contents('php://input');
+            self::$inputread = true;
+            $this->input = self::$globalinput;
         }
 
         return $this->input;
@@ -122,8 +129,8 @@ class Request
 
         if (!Verb::valid($method)) {
             throw new InvalidArgumentException(
-                sprintf('Invalid method type: %s, expects: [%s]', $method),
-                implode(', ', Verb::options())
+                sprintf('Invalid method type: %s, expects: [%s]', $method,
+                    implode(', ', Verb::options()))
             );
         }
 
