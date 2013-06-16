@@ -4,6 +4,9 @@ namespace Efficio\Http;
 
 use InvalidArgumentException;
 
+/**
+ * holds basic information about a request
+ */
 class Request
 {
     /**
@@ -183,7 +186,7 @@ class Request
     }
 
     /**
-     * reads super-globals to create it self
+     * reads super-globals to create itself
      * @return Request
      */
     public static function create()
