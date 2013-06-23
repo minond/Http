@@ -86,31 +86,33 @@ class Rule
     }
 
     /**
-     * converts a string string or a basic pattern into a regular expression
+     * converts a string string or a basic pattern into a regular expression.
+     * escape slashes and converts groups.
      * @param string $str
      * @return string
      */
     public static function transpile($str)
     {
         $str = str_replace('/', '\/?', $str);
-
-        // convert groups
         preg_match_all('/({(.+?)})/', $str, $groups);
 
-        if (is_array($groups) && count($groups)) {
-            if (isset($groups[1]) && isset($groups[2])) {
-                foreach ($groups[1] as $index => $rawname) {
-                    $gname = $groups[2][$index];
-                    $op = '';
+        if (is_array($groups) && count($groups) > 2) {
+            foreach ($groups[1] as $index => $rawname) {
+                $gname = $groups[2][$index];
+                $op = '';
 
-                    if (substr($gname, -1) === '?') {
-                        $gname = substr($gname, 0, -1);
-                        $op = '?';
-                    }
+                // $type and $mult are extracted out of string in case of
+                // future enhancements to manipulate these in any way.
+                $type = 'A-Za-z0-9';
+                $mult = '+';
 
-                    $str = str_replace($rawname,
-                        "(?P<{$gname}>[A-Za-z0-9]+){$op}", $str);
+                if (substr($gname, -1) === '?') {
+                    $gname = substr($gname, 0, -1);
+                    $op = '?';
                 }
+
+                $str = str_replace($rawname,
+                    "(?P<{$gname}>[{$type}]{$mult}){$op}", $str);
             }
         }
 
