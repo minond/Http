@@ -135,19 +135,24 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/string/', Rule::transpile('string'));
     }
 
-    public function testTranspileMethodConvertsSimpleGroups()
+    public function testTranspileMethodConvertsGroups()
     {
         $this->assertEquals('/(?P<string>[A-Za-z0-9]+)/', Rule::transpile('{string}'));
     }
 
-    public function testTranspileMethodConvertsMultipleSimpleGroups()
+    public function testTranspileMethodConvertsOptionalGroups()
+    {
+        $this->assertEquals('/(?P<string>[A-Za-z0-9]+)?/', Rule::transpile('{string?}'));
+    }
+
+    public function testTranspileMethodConvertsMultipleGroups()
     {
         $this->assertEquals(
             '/(?P<one>[A-Za-z0-9]+) (?P<two>[A-Za-z0-9]+) (?P<three>[A-Za-z0-9]+) (?P<one>[A-Za-z0-9]+)/',
             Rule::transpile('{one} {two} {three} {one}'));
     }
 
-    public function testTranspileMethodConvertsSimpleGroupsAndIgnoresRegularText()
+    public function testTranspileMethodConvertsGroupsAndIgnoresRegularText()
     {
         $this->assertEquals(
             '/(?P<one>[A-Za-z0-9]+) one two (?P<two>[A-Za-z0-9]+)/',
@@ -160,5 +165,66 @@ class RuleTest extends PHPUnit_Framework_TestCase
         preg_match($regex, 'firstgroup one two secondgroup', $matches);
         $this->assertEquals('firstgroup', $matches['one']);
         $this->assertEquals('secondgroup', $matches['two']);
+    }
+
+    public function testSlashesAreEscaped()
+    {
+        $this->assertEquals(
+            '/one\/?two/',
+            Rule::transpile('one/two', true));
+    }
+
+    public function testARestfulUrlWithABaseAndAModel()
+    {
+        preg_match(Rule::transpile('api/{model}'), '/api/users', $matches);
+        $this->assertEquals('users', $matches['model']);
+    }
+
+    public function testARestfulUrlWithABaseAModelAndASlash()
+    {
+        preg_match(Rule::transpile('api/{model}'), '/api/users/', $matches);
+        $this->assertEquals('users', $matches['model']);
+    }
+
+    public function testARestfulUrlWithABaseAModelASlashAndAnId()
+    {
+        preg_match(Rule::transpile('api/{model}/{id}'), '/api/users/324', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertEquals('324', $matches['id']);
+    }
+
+    public function testARestfulUrlWithABaseAModelASlashAnIdAndMoreStringAtTheEnd()
+    {
+        preg_match(Rule::transpile('api/{model}/{id}'), '/api/users/324/fdsafsd', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertEquals('324', $matches['id']);
+    }
+
+    public function testARestfulUrlWithABaseAModelAndAnOptionalId()
+    {
+        preg_match(Rule::transpile('api/{model}/{id?}'), '/api/users', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertArrayNotHasKey('id', $matches);
+    }
+
+    public function testARestfulUrlWithABaseAModelASlashAndAnOptionalId()
+    {
+        preg_match(Rule::transpile('api/{model}/{id?}'), '/api/users/', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertArrayNotHasKey('id', $matches);
+    }
+
+    public function testARestfulUrlWithABaseAModelASlashAnIdThatsOptional()
+    {
+        preg_match(Rule::transpile('api/{model}/{id?}'), '/api/users/324', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertEquals('324', $matches['id']);
+    }
+
+    public function testARestfulUrlWithABaseAModelASlashAnIdThatsOptionalAndMoreStringAtTheEnd()
+    {
+        preg_match(Rule::transpile('api/{model}/{id?}'), '/api/users/324/fdsafsd', $matches);
+        $this->assertEquals('users', $matches['model']);
+        $this->assertEquals('324', $matches['id']);
     }
 }

@@ -92,6 +92,8 @@ class Rule
      */
     public static function transpile($str)
     {
+        $str = str_replace('/', '\/?', $str);
+
         // convert groups
         preg_match_all('/({(.+?)})/', $str, $groups);
 
@@ -99,8 +101,15 @@ class Rule
             if (isset($groups[1]) && isset($groups[2])) {
                 foreach ($groups[1] as $index => $rawname) {
                     $gname = $groups[2][$index];
+                    $op = '';
+
+                    if (substr($gname, -1) === '?') {
+                        $gname = substr($gname, 0, -1);
+                        $op = '?';
+                    }
+
                     $str = str_replace($rawname,
-                        "(?P<{$gname}>[A-Za-z0-9]+)", $str);
+                        "(?P<{$gname}>[A-Za-z0-9]+){$op}", $str);
                 }
             }
         }
