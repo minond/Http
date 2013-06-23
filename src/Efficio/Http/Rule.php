@@ -86,6 +86,30 @@ class Rule
     }
 
     /**
+     * converts a string string or a basic pattern into a regular expression
+     * @param string $str
+     * @return string
+     */
+    public static function transpile($str)
+    {
+        // convert groups
+        preg_match_all('/({(.+?)})/', $str, $groups);
+
+        if (is_array($groups) && count($groups)) {
+            if (isset($groups[1]) && isset($groups[2])) {
+                foreach ($groups[1] as $index => $rawname) {
+                    $gname = $groups[2][$index];
+                    $str = str_replace($rawname,
+                        "(?P<{$gname}>[A-Za-z0-9]+)", $str);
+                }
+            }
+        }
+
+        // add delimeters
+        return '/' . $str . '/';
+    }
+
+    /**
      * rule factory
      * @param array $expressions
      * @param array $info, default: array()

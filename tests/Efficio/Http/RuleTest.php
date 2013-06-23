@@ -129,4 +129,36 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('model', $info);
         $this->assertEquals('users', $info['model']);
     }
+
+    public function testTranspileMethodConvertsRegularStringsIntoRegularExpressionString()
+    {
+        $this->assertEquals('/string/', Rule::transpile('string'));
+    }
+
+    public function testTranspileMethodConvertsSimpleGroups()
+    {
+        $this->assertEquals('/(?P<string>[A-Za-z0-9]+)/', Rule::transpile('{string}'));
+    }
+
+    public function testTranspileMethodConvertsMultipleSimpleGroups()
+    {
+        $this->assertEquals(
+            '/(?P<one>[A-Za-z0-9]+) (?P<two>[A-Za-z0-9]+) (?P<three>[A-Za-z0-9]+) (?P<one>[A-Za-z0-9]+)/',
+            Rule::transpile('{one} {two} {three} {one}'));
+    }
+
+    public function testTranspileMethodConvertsSimpleGroupsAndIgnoresRegularText()
+    {
+        $this->assertEquals(
+            '/(?P<one>[A-Za-z0-9]+) one two (?P<two>[A-Za-z0-9]+)/',
+            Rule::transpile('{one} one two {two}'));
+    }
+
+    public function testBasicGroups()
+    {
+        $regex = Rule::transpile('{one} one two {two}');
+        preg_match($regex, 'firstgroup one two secondgroup', $matches);
+        $this->assertEquals('firstgroup', $matches['one']);
+        $this->assertEquals('secondgroup', $matches['two']);
+    }
 }
