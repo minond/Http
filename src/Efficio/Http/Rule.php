@@ -64,21 +64,38 @@ class Rule
      *  2) matches, array
      *  3) expression, string
      *
-     * @param string $str
+     * @param Request|string $req
      * @return array[boolean, array, string]
      */
-    public function matches($str)
+    public function matches($req)
     {
         $match = false;
         $matches = [];
         $exp = '';
+        $uri = $req;
+        $method = false;
+        $runcheck = true;
 
-        foreach ($this->expressions as $exp) {
-            preg_match($exp, $str, $matches);
+        if ($req instanceof Request) {
+            $uri = $req->getUri();
 
-            if (count($matches)) {
-                $match = true;
-                break;
+            // quick method check
+            if (
+                isset($this->info['method']) &&
+                $this->info['method'] !== $req->getMethod()
+            ) {
+                $runcheck = false;
+            }
+        }
+
+        if ($runcheck) {
+            foreach ($this->expressions as $exp) {
+                preg_match($exp, $uri, $matches);
+
+                if (count($matches)) {
+                    $match = true;
+                    break;
+                }
             }
         }
 
@@ -126,7 +143,7 @@ class Rule
      * @param array $info, default: array()
      * @return Rule
      */
-    public static function create(array $expressions, array $info = array())
+    public static function create(array $expressions, array $info = [])
     {
         $rule = new static;
         $rule->setInformation($info);
@@ -140,15 +157,15 @@ class Rule
 
     /**
      * find a matching rule and return its information merged with the matches
-     * @param string $str
+     * @param Request|string $req
      * @return array
      */
-    public static function matching($str)
+    public static function matching($req)
     {
         $matching = null;
 
         foreach (self::$pool as & $rule) {
-            list($ok, $matches) = $rule->matches($str);
+            list($ok, $matches) = $rule->matches($req);
 
             if ($ok) {
                 $matching = $rule;
