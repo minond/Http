@@ -111,6 +111,7 @@ class Rule
     public static function transpile($str)
     {
         $str = str_replace('/', '\/?', $str);
+        $str = str_replace('.', '\.?', $str);
         preg_match_all('/({(.+?)})/', $str, $groups);
 
         if (is_array($groups) && count($groups) > 2) {

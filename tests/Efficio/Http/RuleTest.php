@@ -176,6 +176,13 @@ class RuleTest extends PHPUnit_Framework_TestCase
             PublicRule::transpile('one/two', true));
     }
 
+    public function testPeriodsAreEscaped()
+    {
+        $this->assertEquals(
+            '/^one\.?two$/',
+            PublicRule::transpile('one.two', true));
+    }
+
     public function testARestfulUrlWithABaseAndAModel()
     {
         preg_match(PublicRule::transpile('/api/{model}'), '/api/users', $matches);
