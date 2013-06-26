@@ -194,7 +194,7 @@ class Request
         $req = new Request;
 
         $req->setArguments($_REQUEST);
-        $req->setUri($_SERVER['SCRIPT_NAME']);
+        $req->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
         $req->setPort($_SERVER['SERVER_PORT']);
         $req->setMethod($_SERVER['REQUEST_METHOD']);
 

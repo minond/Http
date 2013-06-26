@@ -108,7 +108,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testStaticCreateMethodReadsExpectedValues()
     {
         $args = $_REQUEST = [ 'testing' => 'true' ];
-        $uri = $_SERVER['SCRIPT_NAME'] = '/index';
+        $_SERVER['REQUEST_URI'] = '/index?test';
+        $uri = '/index';
         $port = $_SERVER['SERVER_PORT'] = '8080';
         $method = $_SERVER['REQUEST_METHOD'] = Verb::POST;
 
