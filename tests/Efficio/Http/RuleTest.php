@@ -22,24 +22,6 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->rule = new PublicRule;
     }
 
-    public function tearDown()
-    {
-        PublicRule::flushPool();
-    }
-
-    public function testNewRulesAddThemSelvesToTheRulesPool()
-    {
-        PublicRule::flushPool();
-        $rules = [
-            new PublicRule,
-            new PublicRule,
-            new PublicRule,
-            new PublicRule,
-        ];
-
-        $this->assertEquals($rules, PublicRule::getPool());
-    }
-
     public function testInformationGetterAndSetter()
     {
         $info = [ 'controller' => 'MyController' ];
@@ -94,42 +76,6 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $rule = PublicRule::create($expressions, $information);
         $this->assertEquals($expressions, $rule->getExpressions(), 'checking expressions');
         $this->assertEquals($information, $rule->getInformation(), 'checking information');
-    }
-
-    public function testNonMatchingRulesAreNotFound()
-    {
-        $this->assertNull(PublicRule::matching('somestring'));
-    }
-
-    public function testMatchingRulesAreFound()
-    {
-        PublicRule::create([ '/somestring/' ], [ 'test' => true ]);
-        $info = PublicRule::matching('somestring');
-        $this->assertTrue(is_array($info));
-    }
-
-    public function testBaseInformationIsReturnedOnMatch()
-    {
-        PublicRule::create([ '/somestring/' ], [ 'test' => true ]);
-        $info = PublicRule::matching('somestring');
-        $this->assertArrayHasKey('test', $info);
-        $this->assertTrue($info['test']);
-    }
-
-    public function testPatternGroupsAreReturnedOnMatch()
-    {
-        PublicRule::create([ '/api\/(?P<model>[A-Za-z]+)/' ]);
-        $info = PublicRule::matching('api/users');
-        $this->assertArrayHasKey('model', $info);
-        $this->assertEquals('users', $info['model']);
-    }
-
-    public function testPatternGroupsOverwriteBaseInfoAreReturnedOnMatch()
-    {
-        PublicRule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]);
-        $info = PublicRule::matching('api/users');
-        $this->assertArrayHasKey('model', $info);
-        $this->assertEquals('users', $info['model']);
     }
 
     public function testTranspileMethodConvertsRegularStringsIntoRegularExpressionString()

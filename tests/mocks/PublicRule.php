@@ -10,15 +10,5 @@ class PublicRule extends Rule
     {
         return $this->expressions;
     }
-
-    public static function getPool()
-    {
-        return self::$pool;
-    }
-
-    public static function flushPool()
-    {
-        self::$pool = [];
-    }
 }
 

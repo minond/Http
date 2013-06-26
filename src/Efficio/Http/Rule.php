@@ -20,20 +20,6 @@ class Rule
     protected $info = [];
 
     /**
-     * all rules
-     * @var Rule[]
-     */
-    protected static $pool;
-
-    /**
-     * adds self to rule pool
-     */
-    final public function __construct()
-    {
-        self::$pool[] = $this;
-    }
-
-    /**
      * expression added
      * @param string $exp
      */
@@ -161,42 +147,5 @@ class Rule
         }
 
         return $rule;
-    }
-
-    /**
-     * find a matching rule and return its information merged with the matches
-     * @param Request|string $req
-     * @return array
-     */
-    public static function matching($req)
-    {
-        $matching = null;
-
-        foreach (self::$pool as & $rule) {
-            list($ok, $matches) = $rule->matches($req);
-
-            if ($ok) {
-                $matching = $rule;
-                unset($rule);
-                break;
-            }
-
-            unset($rule);
-        }
-
-        if ($matching) {
-            $stringinfo = [];
-            $ruleinfo = $matching->getInformation();
-
-            foreach ($matches as $key => $val) {
-                if (is_string($key)) {
-                    $stringinfo[ $key ] = $val;
-                }
-            }
-
-            $matching = array_merge($ruleinfo, $stringinfo);
-        }
-
-        return $matching;
     }
 }
