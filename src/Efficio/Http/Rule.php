@@ -121,16 +121,23 @@ class Rule
 
                 // $type and $mult are extracted out of string in case of
                 // future enhancements to manipulate these in any way.
-                $type = 'A-Za-z0-9';
+                $type = '[A-Za-z0-9]';
                 $mult = '+';
 
-                if (substr($gname, -1) === '?') {
-                    $gname = substr($gname, 0, -1);
-                    $op = '?';
+                switch (substr($gname, -1)) {
+                    case '?':
+                        $gname = substr($gname, 0, -1);
+                        $op = '?';
+                        break;
+
+                    case '*':
+                        $gname = substr($gname, 0, -1);
+                        $type = '.';
+                        break;
                 }
 
                 $str = str_replace($rawname,
-                    "(?P<{$gname}>[{$type}]{$mult}){$op}", $str);
+                    "(?P<{$gname}>{$type}{$mult}){$op}", $str);
             }
         }
 

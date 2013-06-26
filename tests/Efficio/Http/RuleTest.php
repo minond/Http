@@ -142,6 +142,11 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)$/', PublicRule::transpile('{string}'));
     }
 
+    public function testTranspileMethodConvertsAsteriskIntoAnyMatcher()
+    {
+        $this->assertEquals('/^(?P<string>.+)$/', PublicRule::transpile('{string*}'));
+    }
+
     public function testTranspileMethodConvertsOptionalGroups()
     {
         $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)?$/', PublicRule::transpile('{string?}'));
