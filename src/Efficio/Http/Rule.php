@@ -134,7 +134,7 @@ class Rule
         }
 
         // add delimeters
-        return '/' . $str . '/';
+        return '/^' . $str . '$/';
     }
 
     /**
