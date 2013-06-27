@@ -8,6 +8,24 @@ namespace Efficio\Http;
 class Rule
 {
     /**
+     * rule type separator
+     * ie: {groupName:type}, {id:\d+}, {zip:\d\d\d\d\d}
+     */
+    const TYPE_DELIM = ':';
+
+    /**
+     * convert match into dot-plus
+     * ie: {page*} => /(<page>.+)/
+     */
+    const ANY_MATCH = '*';
+
+    /**
+     * optional group flag
+     * ie: {page?} => /(<page>...)?/
+     */
+    const OPTIONAL_GROUP = '?';
+
+    /**
      * matching expressions
      * @var string[]
      */
@@ -97,33 +115,33 @@ class Rule
     public static function transpile($str)
     {
         $str = str_replace('/', '\/?', $str);
-        $str = str_replace('.', '\.?', $str);
+        $str = str_replace('.', '\.', $str);
         preg_match_all('/({(.+?)})/', $str, $groups);
 
         if (is_array($groups) && count($groups) > 2) {
             foreach ($groups[1] as $index => $rawname) {
                 $gname = $groups[2][$index];
-                $op = '';
-
-                // $type and $mult are extracted out of string in case of
-                // future enhancements to manipulate these in any way.
-                $type = '[A-Za-z0-9]';
-                $mult = '+';
+                $type = '[A-Za-z0-9]+';
+                $optional = '';
 
                 switch (substr($gname, -1)) {
-                    case '?':
+                    case self::OPTIONAL_GROUP:
                         $gname = substr($gname, 0, -1);
-                        $op = '?';
+                        $optional = '?';
                         break;
 
-                    case '*':
+                    case self::ANY_MATCH:
                         $gname = substr($gname, 0, -1);
-                        $type = '.';
+                        $type = '.+';
                         break;
                 }
 
+                if (strpos($gname, self::TYPE_DELIM) !== false) {
+                    list($gname, $type) = explode(self::TYPE_DELIM, $gname, 2);
+                }
+
                 $str = str_replace($rawname,
-                    "(?P<{$gname}>{$type}{$mult}){$op}", $str);
+                    "(?P<{$gname}>{$type}){$optional}", $str);
             }
         }
 

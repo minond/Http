@@ -98,6 +98,16 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)?$/', PublicRule::transpile('{string?}'));
     }
 
+    public function testTranspileMethodConvertsCustomTypes()
+    {
+        $this->assertEquals('/^(?P<string>\d+)$/', PublicRule::transpile('{string:\d+}'));
+    }
+
+    public function testTranspileMethodConvertsOptionalGroupsWithCustomTypes()
+    {
+        $this->assertEquals('/^(?P<string>\d+)?$/', PublicRule::transpile('{string:\d+?}'));
+    }
+
     public function testTranspileMethodConvertsMultipleGroups()
     {
         $this->assertEquals(
@@ -130,7 +140,7 @@ class RuleTest extends PHPUnit_Framework_TestCase
     public function testPeriodsAreEscaped()
     {
         $this->assertEquals(
-            '/^one\.?two$/',
+            '/^one\.two$/',
             PublicRule::transpile('one.two', true));
     }
 
@@ -186,6 +196,50 @@ class RuleTest extends PHPUnit_Framework_TestCase
         preg_match(PublicRule::transpile('/api/{model}/{id?}'), '/api/users/324/fdsafsd', $matches);
         $this->assertArrayNotHasKey('id', $matches);
         $this->assertArrayNotHasKey('model', $matches);
+    }
+
+    public function testCustomTypes()
+    {
+        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users.xml', $matches);
+        $this->assertArrayHasKey('page', $matches);
+        $this->assertArrayHasKey('format', $matches);
+        $this->assertEquals('users', $matches['page']);
+        $this->assertEquals('xml', $matches['format']);
+    }
+
+    public function testCustomTypesFilterOutStringsNotMatchingGroup()
+    {
+        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users', $matches);
+        $this->assertArrayNotHasKey('page', $matches);
+        $this->assertArrayNotHasKey('format', $matches);
+    }
+
+    public function testCustomTypesFilterOutStringsNotMatchingType()
+    {
+        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users.html', $matches);
+        $this->assertArrayNotHasKey('page', $matches);
+        $this->assertArrayNotHasKey('format', $matches);
+    }
+
+    public function testCustomTypesUsingDigits()
+    {
+        preg_match(PublicRule::transpile('/users/{pagenum:\d+}'), '/users/one', $matches);
+        $this->assertArrayNotHasKey('page', $matches);
+        $this->assertArrayNotHasKey('format', $matches);
+    }
+
+    public function testCustomTypesUsingDigitThatMatches()
+    {
+        preg_match(PublicRule::transpile('/users/{pagenum:\d}'), '/users/4', $matches);
+        $this->assertArrayHasKey('pagenum', $matches);
+        $this->assertEquals('4', $matches['pagenum']);
+    }
+
+    public function testCustomTypesUsingDigitsThatMatch()
+    {
+        preg_match(PublicRule::transpile('/users/{pagenum:\d\d\d}'), '/users/234', $matches);
+        $this->assertArrayHasKey('pagenum', $matches);
+        $this->assertEquals('234', $matches['pagenum']);
     }
 
     public function testCanMatchToARequestObject()
