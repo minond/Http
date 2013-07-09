@@ -6,7 +6,9 @@ use Efficio\Http\Rule;
 use Efficio\Http\RuleBook;
 use Efficio\Http\Request;
 use Efficio\Http\Verb;
+use Efficio\Http\Error\DuplicateRule;
 use PHPUnit_Framework_TestCase;
+use Exception;
 
 class RuleBookTest extends PHPUnit_Framework_TestCase
 {
@@ -67,5 +69,58 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         $info = $this->rulebook->matching('api/users');
         $this->assertArrayHasKey('model', $info);
         $this->assertEquals('users', $info['model']);
+    }
+
+    /**
+     * @expectedException Efficio\Http\Error\DuplicateRule
+     */
+    public function testAddingDuplciateRulesTriggersException()
+    {
+        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+    }
+
+    /**
+     * @expectedException Efficio\Http\Error\DuplicateRule
+     */
+    public function testAddingDuplicateRulesTriggersAnExceptionWithMultiplePatterns()
+    {
+        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+    }
+
+    /**
+     * @expectedException Efficio\Http\Error\DuplicateRule
+     */
+    public function testAddingDuplicateRulesTriggersAnExceptionEvenWhenPatternsAreOutOfOrder()
+    {
+        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create([ Rule::transpile('/api/{model}/{id}'), '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+    }
+
+    public function testAddingDuplicateRulesTrggersADuplicateRuleException()
+    {
+        try {
+            $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]));
+            $this->rulebook->add(Rule::create([ Rule::transpile('/api/{model}/{id}'), '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+            $this->fail();
+        } catch (Exception $e) {
+            $this->assertTrue($e instanceof DuplicateRule);
+        }
+    }
+
+    public function testDuplicateRuleExceptionsIncludeRuleObjectThatTriggeredError()
+    {
+        $one = Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]);
+        $two = Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]);
+
+        try {
+            $this->rulebook->add($one);
+            $this->rulebook->add($two);
+        } catch (DuplicateRule $e) {
+            $this->assertEquals($two, $e->getRule());
+        } catch (Exception $e) {
+            $this->fail();
+        }
     }
 }

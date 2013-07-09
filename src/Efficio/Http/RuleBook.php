@@ -2,6 +2,8 @@
 
 namespace Efficio\Http;
 
+use Efficio\Http\Error\DuplicateRule;
+
 /**
  * a collection of Rules
  */
@@ -13,12 +15,26 @@ class RuleBook
     private $rules = [];
 
     /**
+     * rule hashes
+     * @var string[]
+     */
+    private $rhash = [];
+
+    /**
      * add a rule
      * @param Rule $rule
+     * @throws DuplicateRule
      */
     public function add(Rule $rule)
     {
-        $this->rules[] = $rule;
+        $hash = $rule->hash();
+
+        if (!in_array($hash, $this->rhash)) {
+            $this->rhash[] = $hash;
+            $this->rules[] = $rule;
+        } else {
+            throw DuplicateRule::create($rule);
+        }
     }
 
     /**

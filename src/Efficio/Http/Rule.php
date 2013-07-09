@@ -63,6 +63,17 @@ class Rule
     }
 
     /**
+     * creates a hash using all rule patterns
+     * @return string
+     */
+    public function hash()
+    {
+        $list = array_unique($this->expressions);
+        sort($list);
+        return md5(preg_replace('/\?P<\w+>/', '<G>', implode('-', $list)));
+    }
+
+    /**
      * checks if an expression matches string. returns array with following data:
      *  1) match, boolean
      *  2) matches, array
