@@ -125,7 +125,7 @@ class Rule
      */
     public static function transpile($str)
     {
-        $str = str_replace('/', '\/?', $str);
+        $str = str_replace('/', '\/', $str);
         $str = str_replace('.', '\.', $str);
         preg_match_all('/({(.+?)})/', $str, $groups);
 

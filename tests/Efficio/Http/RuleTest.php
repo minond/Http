@@ -133,7 +133,7 @@ class RuleTest extends PHPUnit_Framework_TestCase
     public function testSlashesAreEscaped()
     {
         $this->assertEquals(
-            '/^one\/?two$/',
+            '/^one\/two$/',
             PublicRule::transpile('one/two', true));
     }
 
@@ -172,14 +172,14 @@ class RuleTest extends PHPUnit_Framework_TestCase
 
     public function testARestfulUrlWithABaseAModelAndAnOptionalId()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id?}'), '/api/users', $matches);
+        preg_match(PublicRule::transpile('/api/{model}/?{id?}'), '/api/users', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertArrayNotHasKey('id', $matches);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAndAnOptionalId()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id?}'), '/api/users/', $matches);
+        preg_match(PublicRule::transpile('/api/{model}/?{id?}'), '/api/users/', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertArrayNotHasKey('id', $matches);
     }
