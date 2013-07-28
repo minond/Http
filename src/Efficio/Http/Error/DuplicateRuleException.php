@@ -9,7 +9,7 @@ use Efficio\Http\Rule;
  * duplicate rule exception
  * @used-by RuleBook
  */
-class DuplicateRule extends Exception
+class DuplicateRuleException extends Exception
 {
     /**
      * @var Rule
@@ -34,7 +34,7 @@ class DuplicateRule extends Exception
 
     /**
      * @param Rule $rule
-     * @return DuplicateRule
+     * @return DuplicateRuleException
      */
     public static function create(Rule $rule)
     {

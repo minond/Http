@@ -6,7 +6,7 @@ use Efficio\Http\Rule;
 use Efficio\Http\RuleBook;
 use Efficio\Http\Request;
 use Efficio\Http\Verb;
-use Efficio\Http\Error\DuplicateRule;
+use Efficio\Http\Error\DuplicateRuleException;
 use PHPUnit_Framework_TestCase;
 use Exception;
 
@@ -72,7 +72,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Efficio\Http\Error\DuplicateRule
+     * @expectedException Efficio\Http\Error\DuplicateRuleException
      */
     public function testAddingDuplciateRulesTriggersException()
     {
@@ -81,7 +81,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Efficio\Http\Error\DuplicateRule
+     * @expectedException Efficio\Http\Error\DuplicateRuleException
      */
     public function testAddingDuplicateRulesTriggersAnExceptionWithMultiplePatterns()
     {
@@ -90,7 +90,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Efficio\Http\Error\DuplicateRule
+     * @expectedException Efficio\Http\Error\DuplicateRuleException
      */
     public function testAddingDuplicateRulesTriggersAnExceptionEvenWhenPatternsAreOutOfOrder()
     {
@@ -105,7 +105,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
             $this->rulebook->add(Rule::create([ Rule::transpile('/api/{model}/{id}'), '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
             $this->fail();
         } catch (Exception $e) {
-            $this->assertTrue($e instanceof DuplicateRule);
+            $this->assertTrue($e instanceof DuplicateRuleException);
         }
     }
 
@@ -117,10 +117,27 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         try {
             $this->rulebook->add($one);
             $this->rulebook->add($two);
-        } catch (DuplicateRule $e) {
+        } catch (DuplicateRuleException $e) {
             $this->assertEquals($two, $e->getRule());
         } catch (Exception $e) {
             $this->fail();
         }
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testRuleBookOnlyLoadsArraysOrObjectsOfRoutes()
+    {
+        $this->rulebook->load('hi');
+    }
+
+    /**
+     * @expectedException Efficio\Http\Error\DuplicateRuleException
+     */
+    public function testLoadingDuplicatesTriggersError()
+    {
+        $this->rulebook->load([ '/users' => [] ]);
+        $this->rulebook->load([ '/users' => [] ]);
     }
 }

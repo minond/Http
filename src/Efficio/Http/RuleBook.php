@@ -2,7 +2,7 @@
 
 namespace Efficio\Http;
 
-use Efficio\Http\Error\DuplicateRule;
+use Efficio\Http\Error\DuplicateRuleException;
 
 /**
  * a collection of Rules
@@ -23,7 +23,7 @@ class RuleBook
     /**
      * add a rule
      * @param Rule $rule
-     * @throws DuplicateRule
+     * @throws DuplicateRuleException
      */
     public function add(Rule $rule)
     {
@@ -33,7 +33,27 @@ class RuleBook
             $this->rhash[] = $hash;
             $this->rules[] = $rule;
         } else {
-            throw DuplicateRule::create($rule);
+            throw DuplicateRuleException::create($rule);
+        }
+    }
+
+    /**
+     * add multiple rules
+     * @param array|object $rules
+     * @throws DuplicateRuleException
+     * @throws InvalidArgumentException
+     */
+    public function load($rules)
+    {
+        if (is_object($rules) || is_array($rules)) {
+            foreach ($rules as $route => $info) {
+                $path = Rule::transpile($route);
+                $rule = Rule::create([ $path ], $info);
+                $this->add($rule);
+            }
+        } else {
+            throw new \InvalidArgumentException(
+                'First argument must be an array or an object');
         }
     }
 

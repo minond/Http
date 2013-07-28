@@ -3,20 +3,20 @@
 namespace Efficio\Tests\Http;
 
 use Efficio\Http\Rule;
-use Efficio\Http\Error\DuplicateRule;
+use Efficio\Http\Error\DuplicateRuleException;
 use PHPUnit_Framework_TestCase;
 use Exception;
 
-class DuplicateRuleTest extends PHPUnit_Framework_TestCase
+class DuplicateRuleExceptionTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var DuplicateRule
+     * @var DuplicateRuleException
      */
     public $dup;
 
     public function setUp()
     {
-        $this->dup = new DuplicateRule;
+        $this->dup = new DuplicateRuleException;
     }
 
     public function testItsActuallyAnException()
@@ -26,7 +26,7 @@ class DuplicateRuleTest extends PHPUnit_Framework_TestCase
 
     public function testInstanceOf()
     {
-        $this->assertTrue($this->dup instanceof DuplicateRule);
+        $this->assertTrue($this->dup instanceof DuplicateRuleException);
     }
 
     public function testRuleSetterAndGetter()
