@@ -69,9 +69,10 @@ class RuleBook
     /**
      * find a matching rule and return its information merged with the matches
      * @param Request|string $req
+     * @param boolean $merge, merge the rule's information into the request on match
      * @return array
      */
-    public function matching($req)
+    public function matching($req, $merge = false)
     {
         $matching = null;
 
@@ -98,6 +99,12 @@ class RuleBook
             }
 
             $matching = array_merge($ruleinfo, $stringinfo);
+
+            if ($merge) {
+                foreach ($matching as $param => $value) {
+                    $req->set($param, $value);
+                }
+            }
         }
 
         return $matching;

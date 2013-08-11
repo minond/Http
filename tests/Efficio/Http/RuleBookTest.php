@@ -140,4 +140,19 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         $this->rulebook->load([ '/users' => [] ]);
         $this->rulebook->load([ '/users' => [] ]);
     }
+
+    public function testRuleInformationCanBeMergedIntoRequestObject()
+    {
+        $req = new Request;
+        $req->setMethod(Verb::GET);
+        $req->setUri('/mypage');
+        $rand = mt_rand();
+
+        $this->rulebook->load([ '/mypage' => [
+            'random' => $rand,
+        ]]);
+
+        $this->rulebook->matching($req, true);
+        $this->assertEquals($rand, $req->random);
+    }
 }
