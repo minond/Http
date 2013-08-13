@@ -50,6 +50,19 @@ class Request
     protected $port;
 
     /**
+     * @param bool $auto, auto setup
+     */
+    public function __construct($auto = false)
+    {
+        if ($auto) {
+            $this->setArguments($_REQUEST);
+            $this->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
+            $this->setPort($_SERVER['SERVER_PORT']);
+            $this->setMethod($_SERVER['REQUEST_METHOD']);
+        }
+    }
+
+    /**
      * argument getter shortcut
      * @param string $key
      * @return mixed
@@ -191,13 +204,6 @@ class Request
      */
     public static function create()
     {
-        $req = new Request;
-
-        $req->setArguments($_REQUEST);
-        $req->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
-        $req->setPort($_SERVER['SERVER_PORT']);
-        $req->setMethod($_SERVER['REQUEST_METHOD']);
-
-        return $req;
+        return new static(true);
     }
 }
