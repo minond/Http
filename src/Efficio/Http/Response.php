@@ -53,24 +53,6 @@ class Response
     }
 
     /**
-     * output content
-     * @return string
-     */
-    public function __toString()
-    {
-        $out = $this->content;
-
-        if (
-            $this->content_type === self::JSON &&
-            (is_object($this->content) || is_array($this->content))
-        ) {
-            $out = json_encode($this->content);
-        }
-
-        return $out;
-    }
-
-    /**
      * header adder
      * @param string $header
      * @param string $value
@@ -96,6 +78,16 @@ class Response
     public function getHeaders()
     {
         return array_merge(self::$stdheaders[ $this->content_type ], $this->headers);
+    }
+
+    /**
+     * send all headers
+     * @codeCoverageIgnore
+     */
+    public function sendHeaders()
+    {
+        foreach ($this->getHeaders() as $header => $value)
+            header("{$header}: {$value}");
     }
 
     /**
@@ -132,6 +124,24 @@ class Response
     public function getContentType()
     {
         return $this->content_type;
+    }
+
+    /**
+     * output content
+     * @return string
+     */
+    public function sendContent()
+    {
+        $out = $this->content;
+
+        if (
+            $this->content_type === self::JSON &&
+            (is_object($this->content) || is_array($this->content))
+        ) {
+            $out = json_encode($this->content);
+        }
+
+        echo $out;
     }
 }
 

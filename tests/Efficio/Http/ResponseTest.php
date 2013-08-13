@@ -66,27 +66,27 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testTextOutputIsSentAsPlainText()
     {
+        $this->expectOutputString('hi');
         $this->res->setContentType(Response::TEXT);
         $this->res->setContent('hi');
-        $this->expectOutputString('hi');
-        print $this->res;
+        $this->res->sendContent();
     }
 
     public function testHtmlOutputIsSentAsPlainText()
     {
+        $this->expectOutputString('hi');
         $this->res->setContentType(Response::HTML);
         $this->res->setContent('hi');
-        $this->expectOutputString('hi');
-        print $this->res;
+        $this->res->sendContent();
     }
 
     public function testJsonOutputIsJsonEncoded()
     {
         $content = [ 'one' => true ];
+        $this->expectOutputString(json_encode($content));
         $this->res->setContentType(Response::JSON);
         $this->res->setContent($content);
-        $this->expectOutputString(json_encode($content));
-        print $this->res;
+        $this->res->sendContent();
     }
 }
 
