@@ -43,6 +43,12 @@ class Response
     protected $content_type = self::HTML;
 
     /**
+     * response static code
+     * @var int
+     */
+    protected $status_code = Status::OK;
+
+    /**
      * @param mixed $content
      * @param int $content_type
      */
@@ -86,6 +92,7 @@ class Response
      */
     public function sendHeaders()
     {
+        http_response_code($this->status_code);
         foreach ($this->getHeaders() as $header => $value)
             header("{$header}: {$value}");
     }
@@ -142,6 +149,22 @@ class Response
         }
 
         echo $out;
+    }
+
+    /**
+     * @param int $status_code
+     */
+    public function setStatusCode($status_code)
+    {
+        $this->status_code = $status_code;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->status_code;
     }
 }
 

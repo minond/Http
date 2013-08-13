@@ -3,6 +3,7 @@
 namespace Efficio\Tests\Http;
 
 use Efficio\Http\Response;
+use Efficio\Http\Status;
 use PHPUnit_Framework_TestCase;
 
 class ResponseTest extends PHPUnit_Framework_TestCase
@@ -87,6 +88,12 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->res->setContentType(Response::JSON);
         $this->res->setContent($content);
         $this->res->sendContent();
+    }
+
+    public function testStatusCodeGetternAndSetter()
+    {
+        $this->res->setStatusCode(Status::NOT_FOUND);
+        $this->assertEquals(Status::NOT_FOUND, $this->res->getStatusCode());
     }
 }
 
