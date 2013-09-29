@@ -2,6 +2,7 @@
 
 namespace Efficio\Tests\Http;
 
+use Efficio\Http\Rule;
 use Efficio\Http\Verb;
 use Efficio\Http\Request;
 use Efficio\Test\Mocks\Http\RequestInputAccess;
@@ -128,5 +129,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $req = new RequestInputAccess;
         $req->getInput();
         $this->assertTrue(RequestInputAccess::getInputRead());
+    }
+
+    public function testRuleGetterAndSetter()
+    {
+        $rule = new Rule;
+        $this->req->setRule($rule);
+        $this->assertEquals($rule, $this->req->getRule());
     }
 }
