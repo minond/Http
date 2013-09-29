@@ -50,11 +50,6 @@ class Request
     protected $port;
 
     /**
-     * @var Rule
-     */
-    protected $rule;
-
-    /**
      * @param bool $auto, auto setup
      */
     public function __construct($auto = false)
@@ -75,22 +70,6 @@ class Request
     public function __get($key)
     {
         return isset($this->args[ $key ]) ? $this->args[ $key ] : null;
-    }
-
-    /**
-     * @return Rule
-     */
-    public function getRule()
-    {
-        return $this->rule;
-    }
-
-    /**
-     * @param Rule $rule
-     */
-    public function setRule(Rule $rule)
-    {
-        $this->rule = $rule;
     }
 
     /**
