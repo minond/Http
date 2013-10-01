@@ -189,6 +189,7 @@ class Rule
      * rule factory
      * @param $expression
      * @param array $info, default: array()
+     * @param is_template, default: false
      * @return Rule
      */
     public static function create($expression, array $info = [], $is_template = false)

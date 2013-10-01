@@ -41,15 +41,15 @@ class RuleBook
     /**
      * add multiple rules
      * @param array|object $rules
+     * @param is_template, default: false
      * @throws DuplicateRuleException
      * @throws InvalidArgumentException
      */
-    public function load($rules)
+    public function load($rules, $is_template = false)
     {
         if (is_object($rules) || is_array($rules)) {
             foreach ($rules as $route => $info) {
-                $path = Rule::transpile($route);
-                $rule = Rule::create($path, $info);
+                $rule = Rule::create($route, $info, $is_template);
                 $this->add($rule);
             }
         } else {
