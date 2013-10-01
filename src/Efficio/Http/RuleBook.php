@@ -2,6 +2,7 @@
 
 namespace Efficio\Http;
 
+use Efficio\Http\Request;
 use Efficio\Http\Error\DuplicateRuleException;
 
 /**
@@ -81,6 +82,11 @@ class RuleBook
 
             if ($ok) {
                 $matching = $rule;
+
+                if ($req instanceof Request) {
+                    $req->setRule($rule);
+                }
+
                 unset($rule);
                 break;
             }

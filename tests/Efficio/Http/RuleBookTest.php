@@ -139,11 +139,24 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         $req->setUri('/mypage');
         $rand = mt_rand();
 
-        $this->rulebook->load([ '/mypage' => [
-            'random' => $rand,
-        ]]);
+        $rule = Rule::create('/mypage', [ 'random' => $rand ], true);
+        $this->rulebook->add($rule);
 
         $this->rulebook->matching($req, true);
         $this->assertEquals($rand, $req->random);
+    }
+
+    public function testRuleIsSavedToRequest()
+    {
+        $req = new Request;
+        $req->setMethod(Verb::GET);
+        $req->setUri('/mypage');
+        $rand = mt_rand();
+
+        $rule = Rule::create('/mypage', [ 'random' => $rand ], true);
+        $this->rulebook->add($rule);
+
+        $this->rulebook->matching($req, true);
+        $this->assertEquals($rule, $req->getRule());
     }
 }
