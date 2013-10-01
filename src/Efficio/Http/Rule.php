@@ -26,10 +26,16 @@ class Rule
     const OPTIONAL_GROUP = '?';
 
     /**
-     * matching expressions
-     * @var string[]
+     * matching expression
+     * @var string
      */
-    protected $expressions = [];
+    protected $expression;
+
+    /**
+     * human friendly expression
+     * @var string
+     */
+    protected $template;
 
     /**
      * information about this rule
@@ -38,12 +44,39 @@ class Rule
     protected $info = [];
 
     /**
-     * expression added
+     * expression setter
      * @param string $exp
      */
-    public function addExpression($exp)
+    public function setExpression($exp)
     {
-        $this->expressions[] = $exp;
+        $this->expression = $exp;
+    }
+
+    /**
+     * expression getter
+     * @return string
+     */
+    public function getExpression()
+    {
+        return $this->expression;
+    }
+
+    /**
+     * expression added
+     * @param string $template
+     */
+    public function setTemplate($template)
+    {
+        $this->template = $template;
+        $this->expression = self::transpile($template);
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplate()
+    {
+        return $this->template;
     }
 
     /**
@@ -68,9 +101,7 @@ class Rule
      */
     public function hash()
     {
-        $list = array_unique($this->expressions);
-        sort($list);
-        return md5(preg_replace('/\?P<\w+>/', '<G>', implode('-', $list)));
+        return md5(preg_replace('/\?P<\w+>/', '<G>', $this->expression));
     }
 
     /**
@@ -104,17 +135,11 @@ class Rule
         }
 
         if ($runcheck) {
-            foreach ($this->expressions as $exp) {
-                preg_match($exp, $uri, $matches);
-
-                if (count($matches)) {
-                    $match = true;
-                    break;
-                }
-            }
+            preg_match($this->expression, $uri, $matches);
+            $match = count($matches) !== 0;
         }
 
-        return [ $match, $matches, $exp ];
+        return [ $match, $matches ];
     }
 
     /**
@@ -162,17 +187,19 @@ class Rule
 
     /**
      * rule factory
-     * @param array $expressions
+     * @param $expression
      * @param array $info, default: array()
      * @return Rule
      */
-    public static function create(array $expressions, array $info = [])
+    public static function create($expression, array $info = [], $is_template = false)
     {
         $rule = new static;
         $rule->setInformation($info);
 
-        foreach ($expressions as $exp) {
-            $rule->addExpression($exp);
+        if ($is_template) {
+            $rule->setTemplate($expression);
+        } else {
+            $rule->setExpression($expression);
         }
 
         return $rule;

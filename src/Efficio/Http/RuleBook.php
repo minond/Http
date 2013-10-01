@@ -48,7 +48,7 @@ class RuleBook
         if (is_object($rules) || is_array($rules)) {
             foreach ($rules as $route => $info) {
                 $path = Rule::transpile($route);
-                $rule = Rule::create([ $path ], $info);
+                $rule = Rule::create($path, $info);
                 $this->add($rule);
             }
         } else {

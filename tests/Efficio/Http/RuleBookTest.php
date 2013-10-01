@@ -40,16 +40,16 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
 
     public function testMatchingRulesAreFound()
     {
-        $this->rulebook->add(Rule::create([ '/one/' ], [ 'test' => true ]));
-        $this->rulebook->add(Rule::create([ '/somestring/' ], [ 'test' => true ]));
-        $this->rulebook->add(Rule::create([ '/two/' ], [ 'test' => true ]));
+        $this->rulebook->add(Rule::create('/one/', [ 'test' => true ]));
+        $this->rulebook->add(Rule::create('/somestring/', [ 'test' => true ]));
+        $this->rulebook->add(Rule::create('/two/', [ 'test' => true ]));
         $info = $this->rulebook->matching('somestring');
         $this->assertTrue(is_array($info));
     }
 
     public function testBaseInformationIsReturnedOnMatch()
     {
-        $this->rulebook->add(Rule::create([ '/somestring/' ], [ 'test' => true ]));
+        $this->rulebook->add(Rule::create('/somestring/', [ 'test' => true ]));
         $info = $this->rulebook->matching('somestring');
         $this->assertArrayHasKey('test', $info);
         $this->assertTrue($info['test']);
@@ -57,7 +57,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
 
     public function testPatternGroupsAreReturnedOnMatch()
     {
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'test' => true ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'test' => true ]));
         $info = $this->rulebook->matching('api/users');
         $this->assertArrayHasKey('model', $info);
         $this->assertEquals('users', $info['model']);
@@ -65,7 +65,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
 
     public function testPatternGroupsOverwriteBaseInfoAreReturnedOnMatch()
     {
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
         $info = $this->rulebook->matching('api/users');
         $this->assertArrayHasKey('model', $info);
         $this->assertEquals('users', $info['model']);
@@ -76,8 +76,8 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
      */
     public function testAddingDuplciateRulesTriggersException()
     {
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
     }
 
     /**
@@ -85,24 +85,15 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
      */
     public function testAddingDuplicateRulesTriggersAnExceptionWithMultiplePatterns()
     {
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
-    }
-
-    /**
-     * @expectedException Efficio\Http\Error\DuplicateRuleException
-     */
-    public function testAddingDuplicateRulesTriggersAnExceptionEvenWhenPatternsAreOutOfOrder()
-    {
-        $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]));
-        $this->rulebook->add(Rule::create([ Rule::transpile('/api/{model}/{id}'), '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
+        $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
     }
 
     public function testAddingDuplicateRulesTrggersADuplicateRuleException()
     {
         try {
-            $this->rulebook->add(Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]));
-            $this->rulebook->add(Rule::create([ Rule::transpile('/api/{model}/{id}'), '/api\/(?P<model>[A-Za-z]+)/' ], [ 'model' => '...' ]));
+            $this->rulebook->add(Rule::create(Rule::transpile('/api/{model}/{id}'), [ 'model' => '...' ]));
+            $this->rulebook->add(Rule::create(Rule::transpile('/api/{model}/{id}'), [ 'model' => '...' ]));
             $this->fail();
         } catch (Exception $e) {
             $this->assertTrue($e instanceof DuplicateRuleException);
@@ -111,8 +102,8 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
 
     public function testDuplicateRuleExceptionsIncludeRuleObjectThatTriggeredError()
     {
-        $one = Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]);
-        $two = Rule::create([ '/api\/(?P<model>[A-Za-z]+)/', Rule::transpile('/api/{model}/{id}') ], [ 'model' => '...' ]);
+        $one = Rule::create(Rule::transpile('/api/{model}/{id}'), [ 'model' => '...' ]);
+        $two = Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]);
 
         try {
             $this->rulebook->add($one);

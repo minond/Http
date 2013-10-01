@@ -5,21 +5,18 @@ namespace Efficio\Tests\Http;
 use Efficio\Http\Rule;
 use Efficio\Http\Request;
 use Efficio\Http\Verb;
-use Efficio\Tests\Mocks\Http\PublicRule;
 use PHPUnit_Framework_TestCase;
-
-require_once './tests/mocks/PublicRule.php';
 
 class RuleTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var PublicRule
+     * @var Rule
      */
     public $rule;
 
     public function setUp()
     {
-        $this->rule = new PublicRule;
+        $this->rule = new Rule;
     }
 
     public function testInformationGetterAndSetter()
@@ -31,100 +28,107 @@ class RuleTest extends PHPUnit_Framework_TestCase
 
     public function testExpressionAdder()
     {
-        $this->rule->addExpression('1');
-        $this->rule->addExpression('2');
-        $this->assertEquals(['1', '2'], $this->rule->getExpressions());
+        $this->rule->setExpression('1');
+        $this->rule->setExpression('2');
+        $this->assertEquals('2', $this->rule->getExpression());
     }
 
     public function testNonMatchingStrings()
     {
-        $this->rule->addExpression('/string/');
-        list($match, $matches, $expression) = $this->rule->matches('somethingelse');
+        $this->rule->setExpression('/string/');
+        list($match, $matches) = $this->rule->matches('somethingelse');
         $this->assertFalse($match);
     }
 
     public function testMatchingStrings()
     {
-        $this->rule->addExpression('/string/');
-        list($match, $matches, $expression) = $this->rule->matches('string');
+        $this->rule->setExpression('/string/');
+        list($match, $matches) = $this->rule->matches('string');
         $this->assertTrue($match);
     }
 
     public function testMatchingExpressionIsReturned()
     {
-        $this->rule->addExpression('/one/');
-        $this->rule->addExpression('/two/');
-        $this->rule->addExpression('/three/');
-        list($match, $matches, $expression) = $this->rule->matches('two');
+        $this->rule->setExpression('/one/');
+        $this->rule->setExpression('/three/');
+        $this->rule->setExpression('/two/');
+        list($match, $matches) = $this->rule->matches('two');
         $this->assertTrue($match);
-        $this->assertEquals('/two/', $expression);
     }
 
     public function testMatchesAreReturned()
     {
-        $this->rule->addExpression('/catch(22)/');
-        list($match, $matches, $expression) = $this->rule->matches('catch22');
+        $this->rule->setExpression('/catch(22)/');
+        list($match, $matches) = $this->rule->matches('catch22');
         $this->assertTrue($match);
         $this->assertEquals(['catch22', '22'], $matches);
     }
 
     public function testCreateHelperMethod()
     {
-        $expressions = ['1', '2'];
+        $expression = '1';
         $information = ['controller' => 'MyController'];
 
-        $rule = PublicRule::create($expressions, $information);
-        $this->assertEquals($expressions, $rule->getExpressions(), 'checking expressions');
+        $rule = Rule::create($expression, $information);
+        $this->assertEquals($expression, $rule->getExpression(), 'checking expressions');
         $this->assertEquals($information, $rule->getInformation(), 'checking information');
+    }
+
+    public function testCreateHelperMethodCanWorkWithTemplates()
+    {
+        $template = '/list/{country}/{state}';
+        $rule = Rule::create($template, [], true);
+        $this->assertEquals($template, $rule->getTemplate());
+        $this->assertEquals(Rule::transpile($template), $rule->getExpression());
     }
 
     public function testTranspileMethodConvertsRegularStringsIntoRegularExpressionString()
     {
-        $this->assertEquals('/^string$/', PublicRule::transpile('string'));
+        $this->assertEquals('/^string$/', Rule::transpile('string'));
     }
 
     public function testTranspileMethodConvertsGroups()
     {
-        $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)$/', PublicRule::transpile('{string}'));
+        $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)$/', Rule::transpile('{string}'));
     }
 
     public function testTranspileMethodConvertsAsteriskIntoAnyMatcher()
     {
-        $this->assertEquals('/^(?P<string>.+)$/', PublicRule::transpile('{string*}'));
+        $this->assertEquals('/^(?P<string>.+)$/', Rule::transpile('{string*}'));
     }
 
     public function testTranspileMethodConvertsOptionalGroups()
     {
-        $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)?$/', PublicRule::transpile('{string?}'));
+        $this->assertEquals('/^(?P<string>[A-Za-z0-9]+)?$/', Rule::transpile('{string?}'));
     }
 
     public function testTranspileMethodConvertsCustomTypes()
     {
-        $this->assertEquals('/^(?P<string>\d+)$/', PublicRule::transpile('{string:\d+}'));
+        $this->assertEquals('/^(?P<string>\d+)$/', Rule::transpile('{string:\d+}'));
     }
 
     public function testTranspileMethodConvertsOptionalGroupsWithCustomTypes()
     {
-        $this->assertEquals('/^(?P<string>\d+)?$/', PublicRule::transpile('{string:\d+?}'));
+        $this->assertEquals('/^(?P<string>\d+)?$/', Rule::transpile('{string:\d+?}'));
     }
 
     public function testTranspileMethodConvertsMultipleGroups()
     {
         $this->assertEquals(
             '/^(?P<one>[A-Za-z0-9]+) (?P<two>[A-Za-z0-9]+) (?P<three>[A-Za-z0-9]+) (?P<one>[A-Za-z0-9]+)$/',
-            PublicRule::transpile('{one} {two} {three} {one}'));
+            Rule::transpile('{one} {two} {three} {one}'));
     }
 
     public function testTranspileMethodConvertsGroupsAndIgnoresRegularText()
     {
         $this->assertEquals(
             '/^(?P<one>[A-Za-z0-9]+) one two (?P<two>[A-Za-z0-9]+)$/',
-            PublicRule::transpile('{one} one two {two}'));
+            Rule::transpile('{one} one two {two}'));
     }
 
     public function testBasicGroups()
     {
-        $regex = PublicRule::transpile('{one} one two {two}');
+        $regex = Rule::transpile('{one} one two {two}');
         preg_match($regex, 'firstgroup one two secondgroup', $matches);
         $this->assertEquals('firstgroup', $matches['one']);
         $this->assertEquals('secondgroup', $matches['two']);
@@ -134,73 +138,73 @@ class RuleTest extends PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             '/^one\/two$/',
-            PublicRule::transpile('one/two', true));
+            Rule::transpile('one/two', true));
     }
 
     public function testPeriodsAreEscaped()
     {
         $this->assertEquals(
             '/^one\.two$/',
-            PublicRule::transpile('one.two', true));
+            Rule::transpile('one.two', true));
     }
 
     public function testARestfulUrlWithABaseAndAModel()
     {
-        preg_match(PublicRule::transpile('/api/{model}'), '/api/users', $matches);
+        preg_match(Rule::transpile('/api/{model}'), '/api/users', $matches);
         $this->assertEquals('users', $matches['model']);
     }
 
     public function testARestfulUrlWithABaseAModelAndASlash()
     {
-        preg_match(PublicRule::transpile('/api/{model}/'), '/api/users/', $matches);
+        preg_match(Rule::transpile('/api/{model}/'), '/api/users/', $matches);
         $this->assertEquals('users', $matches['model']);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAndAnId()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id}'), '/api/users/324', $matches);
+        preg_match(Rule::transpile('/api/{model}/{id}'), '/api/users/324', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertEquals('324', $matches['id']);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAnIdAndMoreStringAtTheEndDoesNotMatch()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id}'), '/api/users/324/fdsafsd', $matches);
+        preg_match(Rule::transpile('/api/{model}/{id}'), '/api/users/324/fdsafsd', $matches);
         $this->assertArrayNotHasKey('model', $matches);
         $this->assertArrayNotHasKey('id', $matches);
     }
 
     public function testARestfulUrlWithABaseAModelAndAnOptionalId()
     {
-        preg_match(PublicRule::transpile('/api/{model}/?{id?}'), '/api/users', $matches);
+        preg_match(Rule::transpile('/api/{model}/?{id?}'), '/api/users', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertArrayNotHasKey('id', $matches);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAndAnOptionalId()
     {
-        preg_match(PublicRule::transpile('/api/{model}/?{id?}'), '/api/users/', $matches);
+        preg_match(Rule::transpile('/api/{model}/?{id?}'), '/api/users/', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertArrayNotHasKey('id', $matches);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAnIdThatsOptional()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id?}'), '/api/users/324', $matches);
+        preg_match(Rule::transpile('/api/{model}/{id?}'), '/api/users/324', $matches);
         $this->assertEquals('users', $matches['model']);
         $this->assertEquals('324', $matches['id']);
     }
 
     public function testARestfulUrlWithABaseAModelASlashAnIdThatsOptionalAndMoreStringAtTheEnd()
     {
-        preg_match(PublicRule::transpile('/api/{model}/{id?}'), '/api/users/324/fdsafsd', $matches);
+        preg_match(Rule::transpile('/api/{model}/{id?}'), '/api/users/324/fdsafsd', $matches);
         $this->assertArrayNotHasKey('id', $matches);
         $this->assertArrayNotHasKey('model', $matches);
     }
 
     public function testCustomTypes()
     {
-        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users.xml', $matches);
+        preg_match(Rule::transpile('/{page}.{format:xml|json}'), '/users.xml', $matches);
         $this->assertArrayHasKey('page', $matches);
         $this->assertArrayHasKey('format', $matches);
         $this->assertEquals('users', $matches['page']);
@@ -209,35 +213,35 @@ class RuleTest extends PHPUnit_Framework_TestCase
 
     public function testCustomTypesFilterOutStringsNotMatchingGroup()
     {
-        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users', $matches);
+        preg_match(Rule::transpile('/{page}.{format:xml|json}'), '/users', $matches);
         $this->assertArrayNotHasKey('page', $matches);
         $this->assertArrayNotHasKey('format', $matches);
     }
 
     public function testCustomTypesFilterOutStringsNotMatchingType()
     {
-        preg_match(PublicRule::transpile('/{page}.{format:xml|json}'), '/users.html', $matches);
+        preg_match(Rule::transpile('/{page}.{format:xml|json}'), '/users.html', $matches);
         $this->assertArrayNotHasKey('page', $matches);
         $this->assertArrayNotHasKey('format', $matches);
     }
 
     public function testCustomTypesUsingDigits()
     {
-        preg_match(PublicRule::transpile('/users/{pagenum:\d+}'), '/users/one', $matches);
+        preg_match(Rule::transpile('/users/{pagenum:\d+}'), '/users/one', $matches);
         $this->assertArrayNotHasKey('page', $matches);
         $this->assertArrayNotHasKey('format', $matches);
     }
 
     public function testCustomTypesUsingDigitThatMatches()
     {
-        preg_match(PublicRule::transpile('/users/{pagenum:\d}'), '/users/4', $matches);
+        preg_match(Rule::transpile('/users/{pagenum:\d}'), '/users/4', $matches);
         $this->assertArrayHasKey('pagenum', $matches);
         $this->assertEquals('4', $matches['pagenum']);
     }
 
     public function testCustomTypesUsingDigitsThatMatch()
     {
-        preg_match(PublicRule::transpile('/users/{pagenum:\d\d\d}'), '/users/234', $matches);
+        preg_match(Rule::transpile('/users/{pagenum:\d\d\d}'), '/users/234', $matches);
         $this->assertArrayHasKey('pagenum', $matches);
         $this->assertEquals('234', $matches['pagenum']);
     }
@@ -248,7 +252,7 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $req->setMethod(Verb::GET);
         $req->setUri('/mypage');
 
-        $this->assertTrue(PublicRule::create([ Rule::transpile('/{page}') ])
+        $this->assertTrue(Rule::create(Rule::transpile('/{page}'))
             ->matches($req)[0]);
     }
 
@@ -258,7 +262,7 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $req->setMethod(Verb::GET);
         $req->setUri('/mypage');
 
-        $this->assertFalse(PublicRule::create([ Rule::transpile('/{page}') ],
+        $this->assertFalse(Rule::create(Rule::transpile('/{page}'),
             [ 'method' => Verb::PUT ])
             ->matches($req)[0]);
     }
@@ -269,8 +273,16 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $req->setMethod(Verb::PUT);
         $req->setUri('/mypage');
 
-        $this->assertTrue(PublicRule::create([ Rule::transpile('/{page}') ],
+        $this->assertTrue(Rule::create(Rule::transpile('/{page}'),
             [ 'method' => Verb::PUT ])
             ->matches($req)[0]);
+    }
+
+    public function testTemplateSetterTranspilesToExpression()
+    {
+        $template = '/list/{country}/{state}';
+        $this->rule->setTemplate($template);
+        $this->assertEquals($template, $this->rule->getTemplate());
+        $this->assertEquals(Rule::transpile($template), $this->rule->getExpression());
     }
 }
