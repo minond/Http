@@ -285,4 +285,20 @@ class RuleTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($template, $this->rule->getTemplate());
         $this->assertEquals(Rule::transpile($template), $this->rule->getExpression());
     }
+
+    public function testHttpMethodsCanBePassedInWithTemplates()
+    {
+        $this->rule->setTemplate('GET /users');
+        $info = $this->rule->getInformation();
+        $this->assertTrue(isset($info['method']));
+        $this->assertEquals('GET', $info['method']);
+    }
+
+    public function testHttpMethodsCanBePassedInWithTemplatesAndBeSeparatedByMultipleSpaces()
+    {
+        $this->rule->setTemplate('GET                  /users');
+        $info = $this->rule->getInformation();
+        $this->assertTrue(isset($info['method']));
+        $this->assertEquals('GET', $info['method']);
+    }
 }

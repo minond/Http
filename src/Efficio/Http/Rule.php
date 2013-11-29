@@ -67,6 +67,14 @@ class Rule
      */
     public function setTemplate($template)
     {
+        $template = preg_replace('/\s+/', ' ', $template);
+        $parts = explode(' ', $template);
+
+        if (count($parts) === 2) {
+            $template = $parts[1];
+            $this->info['method'] = $parts[0];
+        }
+
         $this->template = $template;
         $this->expression = self::transpile($template);
     }
@@ -84,7 +92,7 @@ class Rule
      */
     public function setInformation(array $info)
     {
-        $this->info = $info;
+        $this->info = array_merge($this->info, $info);
     }
 
     /**
@@ -101,7 +109,11 @@ class Rule
      */
     public function hash()
     {
-        return md5(preg_replace('/\?P<\w+>/', '<G>', $this->expression));
+        $exps = $this->expression;
+        $keys = implode('-', array_keys($this->info));
+        $vals = implode('-', array_values($this->info));
+
+        return md5(preg_replace('/\?P<\w+>/', '<G>', $exps . $keys . $vals));
     }
 
     /**

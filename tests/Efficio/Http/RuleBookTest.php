@@ -80,6 +80,12 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         $this->rulebook->add(Rule::create('/api\/(?P<model>[A-Za-z]+)/', [ 'model' => '...' ]));
     }
 
+    public function testAddingDuplciateRulesWithDifferentMethodsDoesNotTriggerException()
+    {
+        $this->rulebook->add(Rule::create('GET /users/add', [ 'model' => '...' ], true));
+        $this->rulebook->add(Rule::create('POST /users/add', [ 'model' => '...' ], true));
+    }
+
     /**
      * @expectedException Efficio\Http\Error\DuplicateRuleException
      */
