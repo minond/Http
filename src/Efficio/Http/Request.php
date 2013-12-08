@@ -3,6 +3,7 @@
 namespace Efficio\Http;
 
 use InvalidArgumentException;
+use Efficio\Utilitatis\Word;
 use Efficio\Utilitatis\PublicObject;
 
 /**
@@ -10,6 +11,8 @@ use Efficio\Utilitatis\PublicObject;
  */
 class Request
 {
+    const HEADER_SERVER_PREFIX = 'HTTP_';
+
     /**
      * request data
      * @var string
@@ -59,7 +62,7 @@ class Request
      * request headers
      * @var PublicObject
      */
-    // public $header;
+    public $header;
 
     /**
      *
@@ -67,7 +70,7 @@ class Request
     public function __construct()
     {
         $this->param = new PublicObject;
-        // $this->header = new PublicObject;
+        $this->header = new PublicObject;
     }
 
     /**
@@ -111,7 +114,7 @@ class Request
     }
 
     /**
-     * parameter getter
+     * parameters getter
      * @return PublicObject
      */
     public function getParameters()
@@ -120,12 +123,30 @@ class Request
     }
 
     /**
-     * parameter getter
+     * parameters getter
      * @param PublicObject $param
      */
     public function setParameters(PublicObject $param)
     {
         $this->param = $param;
+    }
+
+    /**
+     * headers getter
+     * @return PublicObject
+     */
+    public function getHeaders()
+    {
+        return $this->header;
+    }
+
+    /**
+     * headers getter
+     * @param PublicObject $header
+     */
+    public function setHeaders(PublicObject $header)
+    {
+        $this->header = $header;
     }
 
     /**
@@ -199,12 +220,26 @@ class Request
     public static function create()
     {
         $req = new static;
+        $word = new Word;
 
-        $req->setParameters(new PublicObject($_REQUEST));
         $req->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
         $req->setPort($_SERVER['SERVER_PORT']);
         $req->setMethod($_SERVER['REQUEST_METHOD']);
+        $req->setParameters(new PublicObject($_REQUEST));
+
+        foreach ($_SERVER as $key => $val) {
+            if (strpos($key, self::HEADER_SERVER_PREFIX) === 0) {
+                $key = str_replace(self::HEADER_SERVER_PREFIX, '', $key);
+                $key = strtolower($key);
+                $key = $word->humanCase($key);
+                $key = ucwords($key);
+                $key = str_replace(' ', '-', $key);
+
+                $req->header->{ $key } = $val;
+            }
+        }
 
         return $req;
     }
 }
+

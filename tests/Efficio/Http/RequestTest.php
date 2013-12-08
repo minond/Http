@@ -62,21 +62,28 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->req->setMethod('invalid');
     }
 
-    public function testArgumentGetterAndSetter()
+    public function testHeaderGetterAndSetter()
+    {
+        $headers = new PublicObject([ 'testing' => 'true' ]);
+        $this->req->setHeaders($headers);
+        $this->assertEquals($headers, $this->req->getHeaders());
+    }
+
+    public function testParameterGetterAndSetter()
     {
         $params = new PublicObject([ 'testing' => 'true' ]);
         $this->req->setParameters($params);
         $this->assertEquals($params, $this->req->getParameters());
     }
 
-    public function testArgumentCanBeAccessedLikeProperties()
+    public function testParameterCanBeAccessedLikeProperties()
     {
         $params = new PublicObject([ 'testing' => true ]);
         $this->req->setParameters($params);
         $this->assertTrue($this->req->param->testing);
     }
 
-    public function testArgumentCanBeUpdates()
+    public function testParameterCanBeUpdates()
     {
         $params = new PublicObject([ 'testing' => true ]);
         $this->req->setParameters($params);
@@ -85,7 +92,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->req->param->testing);
     }
 
-    public function testArgumentCanBeFound()
+    public function testParameterCanBeFound()
     {
         $params = new PublicObject([ 'testing' => true ]);
         $this->req->setParameters($params);
@@ -100,6 +107,46 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($input, $this->req->getInput());
     }
 
+    /**
+     * @backupGlobals enabled
+     */
+    public function testStaticCreateGetsHeaders()
+    {
+        // for headers
+        $_SERVER = array_merge($_SERVER, [
+            'HTTP_HOST' => 'localhost',
+            'HTTP_CONNECTION' => 'keep-alive',
+            'HTTP_CACHE_CONTROL' => 'max-age=0',
+            'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36',
+            'HTTP_ACCEPT_ENCODING' => 'gzip,deflate,sdch',
+            'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
+            'HTTP_COOKIE' => 'PHPSESSID=?',
+        ]);
+
+        $args = $_REQUEST = [ 'testing' => 'true' ];
+        $params = new PublicObject($args);
+        $_SERVER['REQUEST_URI'] = '/index?test';
+        $uri = '/index';
+        $port = $_SERVER['SERVER_PORT'] = '8080';
+        $method = $_SERVER['REQUEST_METHOD'] = Verb::POST;
+
+        $req = Request::create();
+        $this->assertFalse(isset($req->header->{ 'Accept-Language?' }));
+        $this->assertTrue(isset($req->header->Host));
+        $this->assertTrue(isset($req->header->Connection));
+        $this->assertTrue(isset($req->header->{ 'Cache-Control' }));
+        $this->assertTrue(isset($req->header->Accept));
+        $this->assertTrue(isset($req->header->{ 'User-Agent' }));
+        $this->assertTrue(isset($req->header->{ 'Accept-Encoding' }));
+        $this->assertTrue(isset($req->header->{ 'Accept-Language' }));
+        $this->assertTrue(isset($req->header->Cookie));
+        $this->assertEquals('PHPSESSID=?', $req->header->Cookie);
+    }
+
+    /**
+     * @backupGlobals enabled
+     */
     public function testStaticCreateMethodReadsExpectedValues()
     {
         $args = $_REQUEST = [ 'testing' => 'true' ];
