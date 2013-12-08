@@ -3,6 +3,7 @@
 namespace Efficio\Http;
 
 use InvalidArgumentException;
+use Efficio\Utilitatis\PublicObject;
 
 /**
  * holds basic information about a request
@@ -28,12 +29,6 @@ class Request
     protected $input = '';
 
     /**
-     * request arguments
-     * @var array
-     */
-    protected $args = [];
-
-    /**
      * @see Efficio\Http\Verb
      * @var string
      */
@@ -55,26 +50,24 @@ class Request
     protected $rule;
 
     /**
-     * @param bool $auto, auto setup
+     * request parameters
+     * @var PublicObject
      */
-    public function __construct($auto = false)
-    {
-        if ($auto) {
-            $this->setArguments($_REQUEST);
-            $this->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
-            $this->setPort($_SERVER['SERVER_PORT']);
-            $this->setMethod($_SERVER['REQUEST_METHOD']);
-        }
-    }
+    public $param;
 
     /**
-     * argument getter shortcut
-     * @param string $key
-     * @return mixed
+     * request headers
+     * @var PublicObject
      */
-    public function __get($key)
+    // public $header;
+
+    /**
+     *
+     */
+    public function __construct()
     {
-        return isset($this->args[ $key ]) ? $this->args[ $key ] : null;
+        $this->param = new PublicObject;
+        // $this->header = new PublicObject;
     }
 
     /**
@@ -118,41 +111,21 @@ class Request
     }
 
     /**
-     * arguments getter
-     * @return array
+     * parameter getter
+     * @return PublicObject
      */
-    public function getArguments()
+    public function getParameters()
     {
-        return $this->args;
+        return $this->param;
     }
 
     /**
-     * arguments getter
-     * @param array $args
+     * parameter getter
+     * @param PublicObject $param
      */
-    public function setArguments(array $args)
+    public function setParameters(PublicObject $param)
     {
-        $this->args = $args;
-    }
-
-    /**
-     * argument setter
-     * @param string $key
-     * @param mixed $value
-     */
-    public function set($key, $value)
-    {
-        $this->args[ $key ] = $value;
-    }
-
-    /**
-     * checks if parameter exists
-     * @param string $key
-     * @return boolean
-     */
-    public function has($key)
-    {
-        return isset($this->args[ $key ]);
+        $this->param = $param;
     }
 
     /**
@@ -225,6 +198,13 @@ class Request
      */
     public static function create()
     {
-        return new static(true);
+        $req = new static;
+
+        $req->setParameters(new PublicObject($_REQUEST));
+        $req->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
+        $req->setPort($_SERVER['SERVER_PORT']);
+        $req->setMethod($_SERVER['REQUEST_METHOD']);
+
+        return $req;
     }
 }

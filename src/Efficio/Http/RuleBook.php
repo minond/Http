@@ -108,7 +108,7 @@ class RuleBook
 
             if ($merge) {
                 foreach ($matching as $param => $value) {
-                    $req->set($param, $value);
+                    $req->param->{ $param } = $value;
                 }
             }
         }

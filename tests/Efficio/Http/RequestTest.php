@@ -6,6 +6,7 @@ use Efficio\Http\Rule;
 use Efficio\Http\Verb;
 use Efficio\Http\Request;
 use Efficio\Test\Mocks\Http\RequestInputAccess;
+use Efficio\Utilitatis\PublicObject;
 use PHPUnit_Framework_TestCase;
 
 require_once './tests/mocks/RequestInputAccess.php';
@@ -63,40 +64,33 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testArgumentGetterAndSetter()
     {
-        $args = [ 'testing' => 'true' ];
-        $this->req->setArguments($args);
-        $this->assertEquals($args, $this->req->getArguments());
+        $params = new PublicObject([ 'testing' => 'true' ]);
+        $this->req->setParameters($params);
+        $this->assertEquals($params, $this->req->getParameters());
     }
 
     public function testArgumentCanBeAccessedLikeProperties()
     {
-        $args = [ 'testing' => true ];
-        $this->req->setArguments($args);
-        $this->assertTrue($this->req->testing);
-    }
-
-    public function testArgumentAccessedLikePropertiesThatDontExistsReturnNull()
-    {
-        $args = [ 'testing' => true ];
-        $this->req->setArguments($args);
-        $this->assertNull($this->req->testing123);
+        $params = new PublicObject([ 'testing' => true ]);
+        $this->req->setParameters($params);
+        $this->assertTrue($this->req->param->testing);
     }
 
     public function testArgumentCanBeUpdates()
     {
-        $args = [ 'testing' => true ];
-        $this->req->setArguments($args);
-        $this->assertTrue($this->req->testing);
-        $this->req->set('testing', false);
-        $this->assertFalse($this->req->testing);
+        $params = new PublicObject([ 'testing' => true ]);
+        $this->req->setParameters($params);
+        $this->assertTrue($this->req->param->testing);
+        $this->req->param->testing = false;
+        $this->assertFalse($this->req->param->testing);
     }
 
     public function testArgumentCanBeFound()
     {
-        $args = [ 'testing' => true ];
-        $this->req->setArguments($args);
-        $this->assertTrue($this->req->has('testing'));
-        $this->assertFalse($this->req->has('testing123'));
+        $params = new PublicObject([ 'testing' => true ]);
+        $this->req->setParameters($params);
+        $this->assertTrue(isset($this->req->param->testing));
+        $this->assertFalse(isset($this->req->param->testing123));
     }
 
     public function testInputGetterAndSetter()
@@ -109,6 +103,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testStaticCreateMethodReadsExpectedValues()
     {
         $args = $_REQUEST = [ 'testing' => 'true' ];
+        $params = new PublicObject($args);
         $_SERVER['REQUEST_URI'] = '/index?test';
         $uri = '/index';
         $port = $_SERVER['SERVER_PORT'] = '8080';
@@ -116,7 +111,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $req = Request::create();
 
-        $this->assertEquals($args, $req->getArguments());
+        $this->assertEquals($params, $req->getParameters());
         $this->assertEquals($uri, $req->getUri());
         $this->assertEquals($port, $req->getPort());
         $this->assertEquals($method, $req->getMethod());

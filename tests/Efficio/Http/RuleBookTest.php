@@ -149,7 +149,7 @@ class RuleBookTest extends PHPUnit_Framework_TestCase
         $this->rulebook->add($rule);
 
         $this->rulebook->matching($req, true);
-        $this->assertEquals($rand, $req->random);
+        $this->assertEquals($rand, $req->param->random);
     }
 
     public function testRuleIsSavedToRequest()
