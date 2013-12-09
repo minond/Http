@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/minond/Utilitatis.git",
-                "reference": "be9a6a9ace09c32d7d2dea309de1930495bfd62f"
+                "reference": "81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/minond/Utilitatis/zipball/be9a6a9ace09c32d7d2dea309de1930495bfd62f",
-                "reference": "be9a6a9ace09c32d7d2dea309de1930495bfd62f",
+                "url": "https://api.github.com/repos/minond/Utilitatis/zipball/81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd",
+                "reference": "81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd",
                 "shasum": ""
             },
             "require": {
@@ -39,7 +39,7 @@
                 }
             ],
             "description": "Helper functions and classes",
-            "time": "2013-12-07 20:39:16"
+            "time": "2013-12-09 00:52:33"
         }
     ],
     "packages-dev": [

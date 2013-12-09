@@ -20,7 +20,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testHeadersCanBeAdded()
     {
-        $this->res->setHeader('X-Test', true);
+        $this->res->header['X-Test'] = true;
         $headers = $this->res->getHeaders();
         $this->assertTrue(isset($headers['X-Test']));
         $this->assertTrue($headers['X-Test']);
@@ -28,8 +28,8 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testHeadersCanBeRemoved()
     {
-        $this->res->setHeader('X-Test', true);
-        $this->res->unsetHeader('X-Test');
+        $this->res->header['X-Test'] = true;
+        unset($this->res->header['X-Test']);
         $headers = $this->res->getHeaders();
         $this->assertFalse(isset($headers['X-Test']));
     }
@@ -43,7 +43,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testStandardHeadersCanBeOverwritten()
     {
-        $this->res->setHeader('Content-Type', 'someother/type');
+        $this->res->header['Content-Type'] = 'someother/type';
         $headers = $this->res->getHeaders();
         $this->assertEquals('someother/type', $headers['Content-Type']);
     }

@@ -2,6 +2,8 @@
 
 namespace Efficio\Http;
 
+use Efficio\Utilitatis\PublicObject;
+
 /**
  * response helper
  */
@@ -25,12 +27,6 @@ class Response
     ];
 
     /**
-     * response headers
-     * @var array
-     */
-    protected $headers = [];
-
-    /**
      * response payload
      * @var mixed
      */
@@ -49,6 +45,12 @@ class Response
     protected $status_code = Status::OK;
 
     /**
+     * response headers
+     * @var PublicObject
+     */
+    public $header;
+
+    /**
      * @param mixed $content
      * @param int $content_type
      */
@@ -56,25 +58,7 @@ class Response
     {
         $this->content = $content;
         $this->content_type = $content_type;
-    }
-
-    /**
-     * header adder
-     * @param string $header
-     * @param string $value
-     */
-    public function setHeader($header, $value)
-    {
-        $this->headers[ $header ] = $value;
-    }
-
-    /**
-     * header remover
-     * @param string $header
-     */
-    public function unsetHeader($header)
-    {
-        unset($this->headers[ $header ]);
+        $this->header = new PublicObject;
     }
 
     /**
@@ -83,7 +67,9 @@ class Response
      */
     public function getHeaders()
     {
-        return array_merge(self::$stdheaders[ $this->content_type ], $this->headers);
+        return array_merge(
+            self::$stdheaders[ $this->content_type ],
+            $this->header->getArrayCopy());
     }
 
     /**
