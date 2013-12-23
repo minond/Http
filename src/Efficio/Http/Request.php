@@ -217,15 +217,14 @@ class Request
      * reads super-globals to create itself
      * @return Request
      */
-    public static function create()
+    public function importFromGlobals()
     {
-        $req = new static;
         $word = new Word;
 
-        $req->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
-        $req->setPort($_SERVER['SERVER_PORT']);
-        $req->setMethod($_SERVER['REQUEST_METHOD']);
-        $req->setParameters(new PublicObject($_REQUEST));
+        $this->setUri(explode('?', $_SERVER['REQUEST_URI'], 2)[0]);
+        $this->setPort($_SERVER['SERVER_PORT']);
+        $this->setMethod($_SERVER['REQUEST_METHOD']);
+        $this->setParameters(new PublicObject($_REQUEST));
 
         foreach ($_SERVER as $key => $val) {
             if (strpos($key, self::HEADER_SERVER_PREFIX) === 0) {
@@ -235,11 +234,11 @@ class Request
                 $key = ucwords($key);
                 $key = str_replace(' ', '-', $key);
 
-                $req->header->{ $key } = $val;
+                $this->header->{ $key } = $val;
             }
         }
 
-        return $req;
+        return $this;
     }
 }
 

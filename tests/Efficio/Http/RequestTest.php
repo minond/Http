@@ -110,7 +110,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     /**
      * @backupGlobals enabled
      */
-    public function testStaticCreateGetsHeaders()
+    public function testGlobalImportFunctionGetsHeaders()
     {
         // for headers
         $_SERVER = array_merge($_SERVER, [
@@ -131,7 +131,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $port = $_SERVER['SERVER_PORT'] = '8080';
         $method = $_SERVER['REQUEST_METHOD'] = Verb::POST;
 
-        $req = Request::create();
+        $req = new Request;
+        $req->importFromGlobals();
         $this->assertFalse(isset($req->header->{ 'Accept-Language?' }));
         $this->assertTrue(isset($req->header->Host));
         $this->assertTrue(isset($req->header->Connection));
@@ -147,7 +148,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     /**
      * @backupGlobals enabled
      */
-    public function testStaticCreateMethodReadsExpectedValues()
+    public function testGlobalImportethodReadsExpectedValues()
     {
         $args = $_REQUEST = [ 'testing' => 'true' ];
         $params = new PublicObject($args);
@@ -156,7 +157,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $port = $_SERVER['SERVER_PORT'] = '8080';
         $method = $_SERVER['REQUEST_METHOD'] = Verb::POST;
 
-        $req = Request::create();
+        $req = new Request;
+        $req->importFromGlobals();
 
         $this->assertEquals($params, $req->getParameters());
         $this->assertEquals($uri, $req->getUri());
