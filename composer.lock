@@ -3,20 +3,20 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "825bf8586593b74a3ca4bd05303a8523",
+    "hash": "7961c3c026bbb7e7be7e8f4d8c410e86",
     "packages": [
         {
             "name": "minond/utilitatis",
-            "version": "dev-master",
+            "version": "v13.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/minond/Utilitatis.git",
-                "reference": "81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd"
+                "reference": "30dcb589cd8337832261aab2ec247659679eed20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/minond/Utilitatis/zipball/81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd",
-                "reference": "81c2c16ae8aa0b75572e32baa8bd5739dbdb11bd",
+                "url": "https://api.github.com/repos/minond/Utilitatis/zipball/30dcb589cd8337832261aab2ec247659679eed20",
+                "reference": "30dcb589cd8337832261aab2ec247659679eed20",
                 "shasum": ""
             },
             "require": {
@@ -32,6 +32,9 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
             "authors": [
                 {
                     "name": "Marcos Minond",
@@ -39,7 +42,7 @@
                 }
             ],
             "description": "Helper functions and classes",
-            "time": "2013-12-09 00:52:33"
+            "time": "2013-12-25 21:13:48"
         }
     ],
     "packages-dev": [
@@ -140,13 +143,13 @@
             "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-fig/log",
-                "reference": "1.0.0"
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/php-fig/log/archive/1.0.0.zip",
-                "reference": "1.0.0",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/fe0936ee26643249e916849d48e3a51d5f5e278b",
+                "reference": "fe0936ee26643249e916849d48e3a51d5f5e278b",
                 "shasum": ""
             },
             "type": "library",
@@ -545,7 +548,6 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "minond/utilitatis": 20,
         "satooshi/php-coveralls": 20
     },
     "platform": {
