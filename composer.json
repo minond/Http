@@ -1,6 +1,7 @@
 {
     "name": "minond/http",
     "description": "Http helpers",
+    "license": "GPL-2.0+",
 
     "authors": [
         {

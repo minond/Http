@@ -129,9 +129,7 @@ class Rule
     {
         $match = false;
         $matches = [];
-        $exp = '';
         $uri = $req;
-        $method = false;
         $runcheck = true;
 
         if ($req instanceof Request) {

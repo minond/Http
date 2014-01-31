@@ -7,7 +7,6 @@ use Efficio\Http\Rule;
 
 /**
  * duplicate rule exception
- * @used-by RuleBook
  */
 class DuplicateRuleException extends Exception
 {
