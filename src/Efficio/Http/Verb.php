@@ -3,8 +3,8 @@
 namespace Efficio\Http;
 
 /**
- * @link http://en.wikipedia.org/wiki/Http#Request_methods
- * @linke https://github.com/bigcompany/know-your-http
+ * http://en.wikipedia.org/wiki/Http#Request_methods
+ * https://github.com/bigcompany/know-your-http
  * @note does not include TRACE or CONNECT
  */
 abstract class Verb

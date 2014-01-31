@@ -3,7 +3,7 @@
 namespace Efficio\Http;
 
 /**
- * @linke https://github.com/bigcompany/know-your-http
+ * https://github.com/bigcompany/know-your-http
  * @note status codes should be added as needed
  */
 abstract class Status
