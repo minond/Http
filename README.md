@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.org/minond/Http.png?branch=master)](https://travis-ci.org/minond/Http)
 [![Coverage Status](https://coveralls.io/repos/minond/Http/badge.png?branch=master)](https://coveralls.io/r/minond/Http?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/minond/http/version.png)](https://packagist.org/packages/minond/http)
+[![Dependencies Status](https://depending.in/minond/Http.png)](http://depending.in/minond/Http)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/e3ecc490-f8e2-479c-aa5b-d84c4904bd09/mini.png)](https://insight.sensiolabs.com/projects/e3ecc490-f8e2-479c-aa5b-d84c4904bd09)
 
 ## Keys
 
