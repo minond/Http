@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "906209f2310c7f1d436b05c49431cd1b",
+    "hash": "c27d934e86a37e0e22b484866ef7a3fc",
     "packages": [
         {
             "name": "minond/utilitatis",
