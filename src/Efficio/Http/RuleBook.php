@@ -76,6 +76,7 @@ class RuleBook
     public function matching($req, $merge = false)
     {
         $matching = null;
+        $matches = [];
 
         foreach ($this->rules as & $rule) {
             list($ok, $matches) = $rule->matches($req);

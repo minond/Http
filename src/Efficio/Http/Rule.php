@@ -129,8 +129,8 @@ class Rule
     {
         $match = false;
         $matches = [];
-        $uri = $req;
         $runcheck = true;
+        $uri = is_string($req) ? $req : '';
 
         if ($req instanceof Request) {
             $uri = $req->getUri();
